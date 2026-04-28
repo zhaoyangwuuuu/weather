@@ -20,6 +20,27 @@ You can start editing the page by modifying `app/page.tsx`. The page auto-update
 
 This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
 
+## Commit Messages
+
+Use [Conventional Commits](https://www.conventionalcommits.org/) for commit messages:
+
+```txt
+type(scope): short imperative summary
+```
+
+Examples:
+
+```txt
+chore(env): add OpenWeather API key template
+feat(weather): add typed OpenWeather client
+test(weather): cover OpenWeather API route errors
+docs(readme): document OpenWeather setup
+```
+
+Common types are `feat`, `fix`, `docs`, `test`, `refactor`, `chore`, `style`, `perf`, `build`, and `ci`.
+
+Keep the subject under 72 characters, use present-tense imperative wording, and never include secret values in commits, PRs, or logs.
+
 ## Learn More
 
 To learn more about Next.js, take a look at the following resources:
