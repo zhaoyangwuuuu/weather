@@ -14,6 +14,7 @@ export default defineConfig({
   test: {
     environment: "node",
     globals: true,
+    setupFiles: ["./src/__mocks__/setup.ts"],
     unstubEnvs: true,
     unstubGlobals: true,
   },
