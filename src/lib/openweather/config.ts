@@ -1,7 +1,5 @@
 import "server-only";
 
-const OPENWEATHER_API_KEY_ENV = "OPENWEATHER_API_KEY";
-
 export class OpenWeatherConfigError extends Error {
   constructor(message: string) {
     super(message);
@@ -10,11 +8,11 @@ export class OpenWeatherConfigError extends Error {
 }
 
 export function getOpenWeatherApiKey(): string {
-  const apiKey = process.env[OPENWEATHER_API_KEY_ENV]?.trim();
+  const apiKey = process.env.OPENWEATHER_API_KEY?.trim();
 
   if (!apiKey) {
     throw new OpenWeatherConfigError(
-      `${OPENWEATHER_API_KEY_ENV} is required. Add it to .env.local or your deployment environment.`,
+      "OPENWEATHER_API_KEY is required. Add it to .env.local or your deployment environment.",
     );
   }
 
