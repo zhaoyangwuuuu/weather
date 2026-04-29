@@ -1,8 +1,10 @@
-import { Suspense } from "react";
+import { Suspense, ViewTransition } from "react";
+import { notFound, redirect } from "next/navigation";
 import { SearchForm } from "@/components/SearchForm";
 import { CurrentWeatherCard } from "@/components/CurrentWeatherCard";
 import { ForecastCard } from "@/components/ForecastCard";
 import { DayDetailPanel } from "@/components/DayDetailPanel";
+import { ScrollToForecast } from "@/components/ScrollToForecast";
 import { getCurrentWeather, getForecast } from "@/lib/openweather/client";
 import { aggregateForecastByDay, filterForecastByDay } from "@/lib/forecast";
 import { CITIES } from "@/lib/cities";
@@ -13,13 +15,16 @@ export default async function Home({
   searchParams: Promise<{ city?: string; day?: string }>;
 }) {
   const { city: cityId, day } = await searchParams;
+  if (!cityId) redirect(`/?city=${CITIES[0].id}`);
   const city = CITIES.find((c) => String(c.id) === cityId);
+  if (!city) notFound();
 
   return (
-    <main className="min-h-screen flex flex-col items-center gap-5 sm:gap-8 py-8 sm:py-16 px-4">
+    <main className="min-h-screen flex flex-col items-center gap-5 sm:gap-8 py-4 px-4">
       <h1 className="text-4xl font-bold tracking-tight">Weather</h1>
       <Suspense>
         <SearchForm />
+        <ScrollToForecast />
       </Suspense>
       {city && (
         <Suspense fallback={<span className="loading loading-spinner loading-lg" />}>
@@ -52,8 +57,9 @@ async function WeatherResults({
 
   const tz = forecast.city.timezone;
   const days = aggregateForecastByDay(forecast.list, tz);
-  const selectedItems = selectedDay
-    ? filterForecastByDay(forecast.list, selectedDay, tz)
+  const effectiveDay = selectedDay ?? days[0]?.date.toISOString().slice(0, 10);
+  const selectedItems = effectiveDay
+    ? filterForecastByDay(forecast.list, effectiveDay, tz)
     : [];
 
   return (
@@ -65,11 +71,17 @@ async function WeatherResults({
             key={day.date.toISOString()}
             day={day}
             cityId={cityId}
-            selectedDay={selectedDay}
+            selectedDay={effectiveDay}
           />
         ))}
       </div>
-      {selectedItems.length > 0 && <DayDetailPanel items={selectedItems} timezoneOffsetSeconds={tz} />}
+      {selectedItems.length > 0 && (
+        <div id="hourly-detail">
+          <ViewTransition key={effectiveDay} name="hourly-panel" share="auto" enter="auto" default="none">
+            <DayDetailPanel items={selectedItems} timezoneOffsetSeconds={tz} />
+          </ViewTransition>
+        </div>
+      )}
     </div>
   );
 }

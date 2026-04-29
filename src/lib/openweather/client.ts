@@ -105,7 +105,7 @@ export async function getCurrentWeather(
   if (req.units !== undefined) params.units = req.units;
 
   return fetchOpenWeather("/data/2.5/weather", params, {
-    revalidate: 600,
+    revalidate: 7200,
     tags: [CACHE_TAGS.weather, `${CACHE_TAGS.weather}-${req.lat.toFixed(4)}-${req.lon.toFixed(4)}`],
   });
 }
@@ -121,7 +121,7 @@ export async function getForecast(
   if (req.cnt !== undefined) params.cnt = String(req.cnt);
 
   return fetchOpenWeather("/data/2.5/forecast", params, {
-    revalidate: 1800,
+    revalidate: 7200,
     tags: [CACHE_TAGS.forecast, `${CACHE_TAGS.forecast}-${req.lat.toFixed(4)}-${req.lon.toFixed(4)}`],
   });
 }

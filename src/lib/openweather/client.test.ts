@@ -121,20 +121,20 @@ describe("OpenWeather client", () => {
       expect(opts.next?.tags).toContain(CACHE_TAGS.geocode);
     });
 
-    it("sets revalidate: 600 and location tags for getCurrentWeather", async () => {
+    it("sets revalidate: 7200 and location tags for getCurrentWeather", async () => {
       vi.stubGlobal("fetch", makeMockFetch({ body: { cod: 200 } }));
       await getCurrentWeather({ lat: 51.5, lon: -0.1 });
       const opts = getCalledOptions();
-      expect(opts.next?.revalidate).toBe(600);
+      expect(opts.next?.revalidate).toBe(7200);
       expect(opts.next?.tags).toContain(CACHE_TAGS.weather);
       expect(opts.next?.tags).toContain(`${CACHE_TAGS.weather}-51.5000--0.1000`);
     });
 
-    it("sets revalidate: 1800 and location tags for getForecast", async () => {
+    it("sets revalidate: 7200 and location tags for getForecast", async () => {
       vi.stubGlobal("fetch", makeMockFetch({ body: { cod: "200", list: [], city: {} } }));
       await getForecast({ lat: 40.7, lon: -74.0 });
       const opts = getCalledOptions();
-      expect(opts.next?.revalidate).toBe(1800);
+      expect(opts.next?.revalidate).toBe(7200);
       expect(opts.next?.tags).toContain(CACHE_TAGS.forecast);
       expect(opts.next?.tags).toContain(`${CACHE_TAGS.forecast}-40.7000--74.0000`);
     });

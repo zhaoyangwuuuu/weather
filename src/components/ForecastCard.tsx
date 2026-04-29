@@ -16,9 +16,7 @@ export function ForecastCard({ day, cityId, selectedDay }: ForecastCardProps) {
   const low = Math.round(day.tempMin);
   const dateStr = day.date.toISOString().slice(0, 10);
   const isSelected = selectedDay === dateStr;
-  const href = isSelected
-    ? `/?city=${cityId}`
-    : `/?city=${cityId}&day=${dateStr}`;
+  const href = `/?city=${cityId}&day=${dateStr}`;
   const mutedClass = isSelected ? "opacity-70" : "text-base-content/60";
 
   return (

@@ -2,13 +2,13 @@ import type { OpenWeatherForecastItem } from "@/lib/openweather/api.types";
 
 const MONTHS = ["Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"];
 
-const ROW = "flex flex-row items-center px-4 py-3 gap-3";
+const ROW = "flex flex-row items-center px-3 py-3 gap-2";
 const COL_DATETIME = "w-28 shrink-0";
 const COL_ICON     = "w-10 shrink-0 hidden sm:block";
-const COL_TEMP     = "w-12 shrink-0";
+const COL_TEMP     = "w-10 shrink-0";
 const COL_DESC     = "flex-1 hidden sm:block truncate";
-const COL_FEELS    = "w-24 shrink-0";
-const COL_WIND     = "w-10 shrink-0 text-right";
+const COL_FEELS    = "w-16 shrink-0";
+const COL_WIND     = "flex-1 text-right";
 
 export function DayDetailPanel({
   items,
@@ -27,7 +27,7 @@ export function DayDetailPanel({
           <span className={COL_ICON} />
           <span className={COL_TEMP}>Temp</span>
           <span className={COL_DESC}>Description</span>
-          <span className={COL_FEELS}>Feels Like</span>
+          <span className={COL_FEELS}>Feels</span>
           <span className={COL_WIND}>Wind</span>
         </div>
       </div>
