@@ -1,5 +1,6 @@
 import Link from "next/link";
 import type { DailyForecast } from "@/lib/forecast";
+import { ForecastCardPending } from "./ForecastCardPending";
 
 const DAY_NAMES = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
 const MONTH_NAMES = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
@@ -23,10 +24,11 @@ export function ForecastCard({ day, cityId, selectedDay }: ForecastCardProps) {
     <Link
       href={href}
       scroll={false}
-      className={`card flex-1 transition-colors ${
+      className={`card flex-1 relative transition-colors ${
         isSelected ? "bg-accent text-accent-content" : "bg-base-200 hover:bg-base-300"
       }`}
     >
+      <ForecastCardPending />
       {/* Mobile: row — sm+: column */}
       <div className="card-body flex-row sm:flex-col items-center p-3 gap-3 sm:gap-1">
         <p className="text-sm flex-1 sm:flex-none sm:text-center">
