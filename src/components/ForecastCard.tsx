@@ -7,17 +7,17 @@ const MONTH_NAMES = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Se
 
 interface ForecastCardProps {
   day: DailyForecast;
-  cityId: number;
+  citySlug: string;
   selectedDay?: string;
 }
 
-export function ForecastCard({ day, cityId, selectedDay }: ForecastCardProps) {
+export function ForecastCard({ day, citySlug, selectedDay }: ForecastCardProps) {
   const dayName = DAY_NAMES[day.date.getUTCDay()];
   const high = Math.round(day.tempMax);
   const low = Math.round(day.tempMin);
   const dateStr = day.date.toISOString().slice(0, 10);
   const isSelected = selectedDay === dateStr;
-  const href = `/?city=${cityId}&day=${dateStr}`;
+  const href = `/?city=${citySlug}&day=${dateStr}`;
   const mutedClass = isSelected ? "opacity-70" : "text-base-content/60";
 
   return (

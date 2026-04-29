@@ -8,28 +8,28 @@ import { useCityStore } from "@/lib/cityStore";
 export function SearchForm() {
   const router = useRouter();
   const searchParams = useSearchParams();
-  const selectedId = searchParams.get("city") ?? "";
-  const setLastCityId = useCityStore((s) => s.setLastCityId);
+  const selectedSlug = searchParams.get("city") ?? "";
+  const setLastCitySlug = useCityStore((s) => s.setLastCitySlug);
 
   useEffect(() => {
-    if (selectedId) setLastCityId(Number(selectedId));
-  }, [selectedId, setLastCityId]);
+    if (selectedSlug) setLastCitySlug(selectedSlug);
+  }, [selectedSlug, setLastCitySlug]);
 
   function handleChange(e: React.ChangeEvent<HTMLSelectElement>) {
-    const id = e.target.value;
-    if (id) router.push(`/?city=${id}`);
+    const slug = e.target.value;
+    if (slug) router.push(`/?city=${slug}`);
   }
 
   return (
     <select
       className="select select-bordered w-full max-w-lg"
-      value={selectedId}
+      value={selectedSlug}
       onChange={handleChange}
       aria-label="Select city"
     >
       <option value="" disabled>Select a city...</option>
       {CITIES.map((city) => (
-        <option key={city.id} value={String(city.id)}>
+        <option key={city.slug} value={city.slug}>
           {city.name}, {city.country}
         </option>
       ))}

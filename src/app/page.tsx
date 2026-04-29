@@ -15,9 +15,9 @@ export default async function Home({
 }: {
   searchParams: Promise<{ city?: string; day?: string }>;
 }) {
-  const { city: cityId, day } = await searchParams;
-  const city = cityId ? CITIES.find((c) => String(c.id) === cityId) : undefined;
-  if (cityId && !city) notFound();
+  const { city: citySlug, day } = await searchParams;
+  const city = citySlug ? CITIES.find((c) => c.slug === citySlug) : undefined;
+  if (citySlug && !city) notFound();
 
   return (
     <main className="min-h-screen flex flex-col items-center gap-5 sm:gap-8 py-4 px-4">
@@ -29,7 +29,7 @@ export default async function Home({
       </Suspense>
       {city && (
         <Suspense fallback={<span className="loading loading-spinner loading-lg" />}>
-          <WeatherResults lat={city.lat} lon={city.lon} cityId={city.id} cityName={city.name} country={city.country} selectedDay={day} />
+          <WeatherResults lat={city.lat} lon={city.lon} citySlug={city.slug} cityName={city.name} country={city.country} selectedDay={day} />
         </Suspense>
       )}
     </main>
@@ -39,14 +39,14 @@ export default async function Home({
 async function WeatherResults({
   lat,
   lon,
-  cityId,
+  citySlug,
   cityName,
   country,
   selectedDay,
 }: {
   lat: number;
   lon: number;
-  cityId: number;
+  citySlug: string;
   cityName: string;
   country: string;
   selectedDay?: string;
@@ -71,7 +71,7 @@ async function WeatherResults({
           <ForecastCard
             key={day.date.toISOString()}
             day={day}
-            cityId={cityId}
+            citySlug={citySlug}
             selectedDay={effectiveDay}
           />
         ))}

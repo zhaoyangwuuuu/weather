@@ -11,7 +11,7 @@ export default function NotFound() {
       <h1 className="text-6xl font-bold">404</h1>
       <p className="text-base-content/60">That city could not be found.</p>
       {/* Use <a> not <Link> — notFound() boundaries don't unmount on soft navigation */}
-      <a href={`/?city=${CITIES[0].id}`} className="btn btn-primary">
+      <a href={`/?city=${CITIES[0].slug}`} className="btn btn-primary">
         Back to Weather
       </a>
     </main>

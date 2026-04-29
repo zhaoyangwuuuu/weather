@@ -7,17 +7,17 @@ import { CITIES } from "@/lib/cities";
 export function DefaultCityRedirect() {
   const router = useRouter();
   const cityParam = useSearchParams().get("city");
-  const lastCityId = useCityStore((s) => s.lastCityId);
-  const setLastCityId = useCityStore((s) => s.setLastCityId);
+  const lastCitySlug = useCityStore((s) => s.lastCitySlug);
+  const setLastCitySlug = useCityStore((s) => s.setLastCitySlug);
 
   useEffect(() => {
     if (!cityParam) {
-      const validCity = CITIES.find((c) => c.id === lastCityId);
-      const safeId = validCity ? lastCityId : CITIES[0].id;
-      if (!validCity) setLastCityId(CITIES[0].id);
-      router.replace(`/?city=${safeId}`);
+      const validCity = CITIES.find((c) => c.slug === lastCitySlug);
+      const safeSlug = validCity ? lastCitySlug : CITIES[0].slug;
+      if (!validCity) setLastCitySlug(CITIES[0].slug);
+      router.replace(`/?city=${safeSlug}`);
     }
-  }, [cityParam, lastCityId, setLastCityId, router]);
+  }, [cityParam, lastCitySlug, setLastCitySlug, router]);
 
   return null;
 }
