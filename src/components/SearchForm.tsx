@@ -1,12 +1,19 @@
 "use client";
 
+import { useEffect } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { CITIES } from "@/lib/cities";
+import { useCityStore } from "@/lib/cityStore";
 
 export function SearchForm() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const selectedId = searchParams.get("city") ?? "";
+  const setLastCityId = useCityStore((s) => s.setLastCityId);
+
+  useEffect(() => {
+    if (selectedId) setLastCityId(Number(selectedId));
+  }, [selectedId, setLastCityId]);
 
   function handleChange(e: React.ChangeEvent<HTMLSelectElement>) {
     const id = e.target.value;

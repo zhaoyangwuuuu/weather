@@ -1,6 +1,7 @@
 import { Suspense, ViewTransition } from "react";
-import { notFound, redirect } from "next/navigation";
+import { notFound } from "next/navigation";
 import { SearchForm } from "@/components/SearchForm";
+import { DefaultCityRedirect } from "@/components/DefaultCityRedirect";
 import { CurrentWeatherCard } from "@/components/CurrentWeatherCard";
 import { ForecastCard } from "@/components/ForecastCard";
 import { DayDetailPanel } from "@/components/DayDetailPanel";
@@ -15,9 +16,8 @@ export default async function Home({
   searchParams: Promise<{ city?: string; day?: string }>;
 }) {
   const { city: cityId, day } = await searchParams;
-  if (!cityId) redirect(`/?city=${CITIES[0].id}`);
-  const city = CITIES.find((c) => String(c.id) === cityId);
-  if (!city) notFound();
+  const city = cityId ? CITIES.find((c) => String(c.id) === cityId) : undefined;
+  if (cityId && !city) notFound();
 
   return (
     <main className="min-h-screen flex flex-col items-center gap-5 sm:gap-8 py-4 px-4">
@@ -25,6 +25,7 @@ export default async function Home({
       <Suspense>
         <SearchForm />
         <ScrollToForecast />
+        <DefaultCityRedirect />
       </Suspense>
       {city && (
         <Suspense fallback={<span className="loading loading-spinner loading-lg" />}>
