@@ -6,15 +6,12 @@ import type {
   OpenWeatherCurrentWeatherResponse,
   OpenWeatherForecastRequest,
   OpenWeatherForecastResponse,
-  OpenWeatherGeocodeSearchRequest,
-  OpenWeatherGeocodeResponse,
 } from "./api.types";
 
 const BASE_URL = "https://api.openweathermap.org";
 const DEFAULT_TIMEOUT_MS = 10_000;
 
 export const CACHE_TAGS = {
-  geocode: "owm-geocode",
   weather: "owm-weather",
   forecast: "owm-forecast",
 } as const;
@@ -83,17 +80,6 @@ async function fetchOpenWeather<T>(
   }
 }
 
-export async function geocode(
-  req: OpenWeatherGeocodeSearchRequest,
-): Promise<OpenWeatherGeocodeResponse> {
-  const params: Record<string, string> = { q: req.q };
-  if (req.limit !== undefined) params.limit = String(req.limit);
-
-  return fetchOpenWeather("/geo/1.0/direct", params, {
-    revalidate: 86400,
-    tags: [CACHE_TAGS.geocode],
-  });
-}
 
 export async function getCurrentWeather(
   req: OpenWeatherCurrentWeatherRequest,

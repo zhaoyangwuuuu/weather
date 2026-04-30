@@ -4,7 +4,7 @@ import {
   makeMockFetchNetworkError,
   makeMockFetchAbortError,
 } from "@/__mocks__/fetch";
-import { geocode, getCurrentWeather, getForecast, OpenWeatherError, CACHE_TAGS } from "./client";
+import { getCurrentWeather, getForecast, OpenWeatherError, CACHE_TAGS } from "./client";
 
 const FAKE_API_KEY = "test-api-key-abc";
 
@@ -34,35 +34,9 @@ describe("OpenWeather client", () => {
 
   describe("URL construction", () => {
     it("appends the API key as appid", async () => {
-      vi.stubGlobal("fetch", makeMockFetch({ body: [] }));
-      await geocode({ q: "London" });
+      vi.stubGlobal("fetch", makeMockFetch({ body: { cod: 200 } }));
+      await getCurrentWeather({ lat: 0, lon: 0 });
       expect(getCalledUrl().searchParams.get("appid")).toBe(FAKE_API_KEY);
-    });
-
-    it("uses the correct geocode path", async () => {
-      vi.stubGlobal("fetch", makeMockFetch({ body: [] }));
-      await geocode({ q: "London" });
-      const url = getCalledUrl();
-      expect(url.origin).toBe("https://api.openweathermap.org");
-      expect(url.pathname).toBe("/geo/1.0/direct");
-    });
-
-    it("passes q for geocode", async () => {
-      vi.stubGlobal("fetch", makeMockFetch({ body: [] }));
-      await geocode({ q: "Tokyo" });
-      expect(getCalledUrl().searchParams.get("q")).toBe("Tokyo");
-    });
-
-    it("includes limit when provided", async () => {
-      vi.stubGlobal("fetch", makeMockFetch({ body: [] }));
-      await geocode({ q: "Paris", limit: 5 });
-      expect(getCalledUrl().searchParams.get("limit")).toBe("5");
-    });
-
-    it("omits limit when not provided", async () => {
-      vi.stubGlobal("fetch", makeMockFetch({ body: [] }));
-      await geocode({ q: "Berlin" });
-      expect(getCalledUrl().searchParams.has("limit")).toBe(false);
     });
 
     it("uses the correct current weather path", async () => {
@@ -113,14 +87,6 @@ describe("OpenWeather client", () => {
   // ─── Next.js cache options ───────────────────────────────────────────────
 
   describe("Next.js cache options", () => {
-    it("sets revalidate: 86400 and owm-geocode tag for geocode", async () => {
-      vi.stubGlobal("fetch", makeMockFetch({ body: [] }));
-      await geocode({ q: "London" });
-      const opts = getCalledOptions();
-      expect(opts.next?.revalidate).toBe(86400);
-      expect(opts.next?.tags).toContain(CACHE_TAGS.geocode);
-    });
-
     it("sets revalidate: 7200 and location tags for getCurrentWeather", async () => {
       vi.stubGlobal("fetch", makeMockFetch({ body: { cod: 200 } }));
       await getCurrentWeather({ lat: 51.5, lon: -0.1 });
@@ -144,9 +110,9 @@ describe("OpenWeather client", () => {
 
   describe("successful responses", () => {
     it("returns parsed JSON on 200", async () => {
-      const mockBody = [{ name: "London", lat: 51.5, lon: -0.1, country: "GB" }];
+      const mockBody = { cod: 200, main: { temp: 15 } };
       vi.stubGlobal("fetch", makeMockFetch({ body: mockBody }));
-      expect(await geocode({ q: "London" })).toEqual(mockBody);
+      expect(await getCurrentWeather({ lat: 51.5, lon: -0.1 })).toEqual(mockBody);
     });
   });
 
@@ -155,27 +121,27 @@ describe("OpenWeather client", () => {
   describe("HTTP error responses", () => {
     it("throws OpenWeatherError on non-2xx", async () => {
       vi.stubGlobal("fetch", makeMockFetch({ status: 401, statusText: "Unauthorized", body: null }));
-      await expect(geocode({ q: "London" })).rejects.toThrow(OpenWeatherError);
+      await expect(getCurrentWeather({ lat: 0, lon: 0 })).rejects.toThrow(OpenWeatherError);
     });
 
     it("uses body.message when the API returns a JSON error", async () => {
       vi.stubGlobal("fetch", makeMockFetch({ status: 404, statusText: "Not Found", body: { message: "city not found" } }));
-      await expect(geocode({ q: "XxX" })).rejects.toThrow("city not found");
+      await expect(getCurrentWeather({ lat: 0, lon: 0 })).rejects.toThrow("city not found");
     });
 
     it("falls back to HTTP status when body is not JSON", async () => {
       vi.stubGlobal("fetch", makeMockFetch({ status: 500, statusText: "Internal Server Error", body: null }));
-      await expect(geocode({ q: "London" })).rejects.toThrow("HTTP 500");
+      await expect(getCurrentWeather({ lat: 0, lon: 0 })).rejects.toThrow("HTTP 500");
     });
 
     it("falls back to HTTP status when JSON body has no message field", async () => {
       vi.stubGlobal("fetch", makeMockFetch({ status: 429, statusText: "Too Many Requests", body: { code: 429 } }));
-      await expect(geocode({ q: "London" })).rejects.toThrow("HTTP 429");
+      await expect(getCurrentWeather({ lat: 0, lon: 0 })).rejects.toThrow("HTTP 429");
     });
 
     it("thrown error has name OpenWeatherError", async () => {
       vi.stubGlobal("fetch", makeMockFetch({ status: 403, statusText: "Forbidden", body: null }));
-      await expect(geocode({ q: "London" })).rejects.toMatchObject({ name: "OpenWeatherError" });
+      await expect(getCurrentWeather({ lat: 0, lon: 0 })).rejects.toMatchObject({ name: "OpenWeatherError" });
     });
   });
 
@@ -184,18 +150,18 @@ describe("OpenWeather client", () => {
   describe("network errors", () => {
     it("throws OpenWeatherError on fetch rejection", async () => {
       vi.stubGlobal("fetch", makeMockFetchNetworkError("Connection refused"));
-      await expect(geocode({ q: "London" })).rejects.toThrow(OpenWeatherError);
+      await expect(getCurrentWeather({ lat: 0, lon: 0 })).rejects.toThrow(OpenWeatherError);
     });
 
     it("uses the underlying error message", async () => {
       vi.stubGlobal("fetch", makeMockFetchNetworkError("DNS lookup failed"));
-      await expect(geocode({ q: "London" })).rejects.toThrow("DNS lookup failed");
+      await expect(getCurrentWeather({ lat: 0, lon: 0 })).rejects.toThrow("DNS lookup failed");
     });
 
     it("sets error.cause to the original error", async () => {
       const original = new Error("ECONNREFUSED");
       vi.stubGlobal("fetch", vi.fn().mockRejectedValue(original));
-      const err = await geocode({ q: "London" }).catch((e) => e);
+      const err = await getCurrentWeather({ lat: 0, lon: 0 }).catch((e) => e);
       expect(err.cause).toBe(original);
     });
   });
@@ -205,12 +171,12 @@ describe("OpenWeather client", () => {
   describe("timeout", () => {
     it("throws OpenWeatherError when fetch rejects with AbortError", async () => {
       vi.stubGlobal("fetch", makeMockFetchAbortError());
-      await expect(geocode({ q: "London" })).rejects.toThrow(OpenWeatherError);
+      await expect(getCurrentWeather({ lat: 0, lon: 0 })).rejects.toThrow(OpenWeatherError);
     });
 
     it("includes timeout duration in the error message", async () => {
       vi.stubGlobal("fetch", makeMockFetchAbortError());
-      await expect(geocode({ q: "London" })).rejects.toThrow("10000ms");
+      await expect(getCurrentWeather({ lat: 0, lon: 0 })).rejects.toThrow("10000ms");
     });
 
     it("aborts the signal after the default 10s timeout", async () => {
