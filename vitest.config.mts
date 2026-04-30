@@ -12,7 +12,7 @@ export default defineConfig({
     },
   },
   test: {
-    environment: "node",
+    environment: "jsdom",
     globals: true,
     setupFiles: ["./src/__mocks__/setup.ts"],
     unstubEnvs: true,
