@@ -1,9 +1,9 @@
 import Link from "next/link";
 import type { DailyForecast } from "@/lib/forecast";
+import { MONTH_NAMES } from "@/lib/forecast";
 import { ForecastCardPending } from "./ForecastCardPending";
 
 const DAY_NAMES = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
-const MONTH_NAMES = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
 
 interface ForecastCardProps {
   day: DailyForecast;

@@ -1,14 +1,12 @@
 import type { OpenWeatherCurrentWeatherResponse } from "@/lib/openweather/api.types";
 
-export function CurrentWeatherCard({
-  data,
-  cityName,
-  country,
-}: {
+interface CurrentWeatherCardProps {
   data: OpenWeatherCurrentWeatherResponse;
   cityName: string;
   country: string;
-}) {
+}
+
+export function CurrentWeatherCard({ data, cityName, country }: CurrentWeatherCardProps) {
   const temp = Math.round(data.main.temp);
   const tempMax = Math.round(data.main.temp_max);
   const tempMin = Math.round(data.main.temp_min);

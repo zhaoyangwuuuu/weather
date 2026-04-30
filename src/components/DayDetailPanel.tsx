@@ -1,22 +1,20 @@
 import type { OpenWeatherForecastItem } from "@/lib/openweather/api.types";
-
-const MONTHS = ["Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"];
+import { MONTH_NAMES } from "@/lib/forecast";
 
 const ROW = "flex flex-row items-center px-3 py-3 gap-2";
 const COL_DATETIME = "w-28 shrink-0";
-const COL_ICON     = "w-10 shrink-0 hidden sm:block";
-const COL_TEMP     = "w-10 shrink-0";
-const COL_DESC     = "flex-1 hidden sm:block truncate";
-const COL_FEELS    = "w-16 shrink-0";
-const COL_WIND     = "flex-1 text-right";
+const COL_ICON = "w-10 shrink-0 hidden sm:block";
+const COL_TEMP = "w-10 shrink-0";
+const COL_DESC = "flex-1 hidden sm:block truncate";
+const COL_FEELS = "w-16 shrink-0";
+const COL_WIND = "flex-1 text-right";
 
-export function DayDetailPanel({
-  items,
-  timezoneOffsetSeconds,
-}: {
+interface DayDetailPanelProps {
   items: OpenWeatherForecastItem[];
   timezoneOffsetSeconds: number;
-}) {
+}
+
+export function DayDetailPanel({ items, timezoneOffsetSeconds }: DayDetailPanelProps) {
   return (
     <div className="flex flex-col gap-2">
 
@@ -38,7 +36,7 @@ export function DayDetailPanel({
         const ampm = hour24 >= 12 ? "pm" : "am";
         const hour12 = hour24 % 12 || 12;
         const time = `${hour12}:00${ampm}`;
-        const date = `${MONTHS[localDate.getUTCMonth()]} ${localDate.getUTCDate()}`;
+        const date = `${MONTH_NAMES[localDate.getUTCMonth()]} ${localDate.getUTCDate()}`;
         const temp = Math.round(item.main.temp);
         const feelsLike = Math.round(item.main.feels_like);
         const condition = item.weather[0];
