@@ -44,13 +44,25 @@ describe("aggregateForecastByDay", () => {
     expect(days[0].tempMax).toBe(20);
   });
 
-  it("picks noon-closest item for icon and condition", () => {
-    // APR29_21UTC → 06:00 Tokyo, APR30_03UTC → 12:00 Tokyo (noon)
-    const morning = makeItem(APR29_21UTC, 10, "morn-icon", "morning clouds");
-    const noon    = makeItem(APR30_03UTC, 15, "noon-icon", "noon condition");
-    const days = aggregateForecastByDay([morning, noon], TZ_TOKYO);
-    expect(days[0].icon).toBe("noon-icon");
-    expect(days[0].condition).toBe("noon condition");
+  it("picks most frequent icon for the day", () => {
+    const rain  = makeItem(APR29_21UTC, 10, "10d", "light rain");
+    const rain2 = makeItem(APR30_03UTC, 12, "10d", "light rain");
+    const clear = makeItem(APR30_06UTC, 15, "01d", "clear sky");
+    const days = aggregateForecastByDay([rain, rain2, clear], TZ_TOKYO);
+    expect(days[0].icon).toBe("10d");
+    expect(days[0].condition).toBe("light rain");
+  });
+
+  it("normalizes day/night icon variants before counting", () => {
+    // 3× rain (split 10d + 10n) vs 2× overcast (04d) — rain should win
+    const rainDay   = makeItem(APR29_21UTC,       10, "10d", "light rain");
+    const rainNight = makeItem(APR30_03UTC,        9, "10n", "light rain");
+    const rainDay2  = makeItem(APR30_06UTC,       11, "10d", "light rain");
+    const overcast1 = makeItem(APR30_06UTC + 10800, 12, "04d", "overcast clouds");
+    const overcast2 = makeItem(APR30_06UTC + 21600, 13, "04d", "overcast clouds");
+    const days = aggregateForecastByDay([rainDay, rainNight, rainDay2, overcast1, overcast2], TZ_TOKYO);
+    expect(days[0].icon).toBe("10d"); // day variant returned even though 10n was in the mix
+    expect(days[0].condition).toBe("light rain");
   });
 
   it("splits items across local days at timezone boundary", () => {

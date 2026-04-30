@@ -13,6 +13,10 @@ function localDateKey(dt: number, timezoneOffsetSeconds: number): string {
   return new Date(localMs).toISOString().slice(0, 10);
 }
 
+// Collapses the raw 3-hourly forecast list (up to 40 slots) into one entry per
+// local calendar day. Each entry carries the day's min/max temperature and the
+// most frequently occurring weather condition (day/night icon variants are merged
+// so rain split across 10d/10n beats a less common single-code condition).
 export function aggregateForecastByDay(
   items: OpenWeatherForecastItem[],
   timezoneOffsetSeconds: number,
@@ -29,23 +33,31 @@ export function aggregateForecastByDay(
   return Array.from(byDay.entries()).map(([dateStr, dayItems]) => {
     const temps = dayItems.map((i) => i.main.temp);
 
-    // Pick the slot closest to local noon for the representative icon/condition
-    const noonItem = dayItems.reduce((best, item) => {
-      const localHour = Math.floor(((item.dt + timezoneOffsetSeconds) % 86400) / 3600);
-      const bestHour = Math.floor(((best.dt + timezoneOffsetSeconds) % 86400) / 3600);
-      return Math.abs(localHour - 12) < Math.abs(bestHour - 12) ? item : best;
-    });
+    // Pick the most frequent condition across the day's slots.
+    // Normalize day/night variants (10d, 10n → 10) before counting so
+    // the same condition split across daylight and overnight hours isn't
+    // treated as two separate categories.
+    const iconCount = new Map<string, number>();
+    for (const item of dayItems) {
+      const base = item.weather[0].icon.slice(0, -1); // strip d/n suffix
+      iconCount.set(base, (iconCount.get(base) ?? 0) + 1);
+    }
+    const dominantBase = [...iconCount.entries()].reduce((a, b) => (b[1] > a[1] ? b : a))[0];
+    const dominantIcon = `${dominantBase}d`; // always use day variant for summary card
+    const representativeItem = dayItems.find((i) => i.weather[0].icon.startsWith(dominantBase))!;
 
     return {
       date: new Date(`${dateStr}T12:00:00Z`),
       tempMin: Math.min(...temps),
       tempMax: Math.max(...temps),
-      condition: noonItem.weather[0].description,
-      icon: noonItem.weather[0].icon,
+      condition: representativeItem.weather[0].description,
+      icon: dominantIcon,
     };
   });
 }
 
+// Returns the raw 3-hour forecast slots for a single local calendar day so the
+// day detail panel can show only the selected day's timeline.
 export function filterForecastByDay(
   items: OpenWeatherForecastItem[],
   day: string,
