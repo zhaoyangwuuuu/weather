@@ -53,6 +53,7 @@ Toronto, Ottawa, Tokyo. Add more in `src/lib/cities.ts` — each entry needs a s
 | `npm run dev` | Start development server |
 | `npm run build` | Production build |
 | `npm run test:run` | Run all tests once |
+| `npm run test:coverage` | Run tests with coverage report |
 | `npm run lint` | Lint |
 
 ## Commit messages

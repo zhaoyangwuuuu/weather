@@ -42,6 +42,25 @@ describe("ScrollToForecast", () => {
     expect(scrollSpy).not.toHaveBeenCalled();
   });
 
+  it("scrolls via MutationObserver when #hourly-detail is not yet in DOM", async () => {
+    Object.defineProperty(window, "innerWidth", { value: 390, writable: true, configurable: true });
+    mockSearchParams.set("day", "2026-04-29");
+
+    render(<ScrollToForecast />);
+
+    expect(document.getElementById("hourly-detail")).toBeNull();
+
+    const el = document.createElement("div");
+    el.id = "hourly-detail";
+    const scrollSpy = vi.fn();
+    el.scrollIntoView = scrollSpy;
+    document.body.appendChild(el);
+
+    await new Promise((r) => setTimeout(r, 0));
+
+    expect(scrollSpy).toHaveBeenCalledWith({ behavior: "smooth", block: "start" });
+  });
+
   it("does not scroll when no day param", () => {
     Object.defineProperty(window, "innerWidth", { value: 390, writable: true, configurable: true });
     const el = document.createElement("div");
